@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Rinder-Birria</title>
+<style>
+:root{
+  --bg:#f2f2f7; --card:#fff; --text:#1c1c1e; --muted:#6e6e73;
+  --sep:rgba(60,60,67,.18); --fill:rgba(120,120,128,.12);
+  --accent:#c2410c; --accent-soft:rgba(194,65,12,.12); --on-accent:#fff;
+  color-scheme:light dark;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#000; --card:#1c1c1e; --text:#f5f5f7; --muted:#98989d;
+    --sep:rgba(84,84,88,.6); --fill:rgba(120,120,128,.24);
+    --accent:#ff7a45; --accent-soft:rgba(255,122,69,.18); --on-accent:#1c1c1e;
+  }
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font:1.0625rem/1.47 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-tap-highlight-color:transparent;
+}
+main{max-width:42rem; margin:0 auto; padding:max(1.5rem,env(safe-area-inset-top)) max(1rem,env(safe-area-inset-right)) max(3rem,env(safe-area-inset-bottom)) max(1rem,env(safe-area-inset-left))}
+h1{font-size:clamp(1.9rem,7vw,2.5rem); line-height:1.08; letter-spacing:-.022em; margin:.5rem 0 .4rem; font-weight:700}
+.lead{color:var(--muted); margin:0 0 1.5rem}
+h2{font-size:1.4rem; line-height:1.2; letter-spacing:-.012em; margin:2.25rem 0 .75rem; font-weight:700}
+h3{font-size:.8125rem; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin:1.25rem 1rem .4rem}
+
+.card{background:var(--card); border-radius:14px; overflow:hidden}
+.row{display:flex; align-items:center; gap:.75rem; min-height:3.25rem; padding:.5rem 1rem; position:relative}
+.row + .row::before{content:""; position:absolute; top:0; left:1rem; right:0; border-top:.5px solid var(--sep)}
+.row > .grow{flex:1}
+
+button{font:inherit; color:inherit; border:0; background:none; cursor:pointer; touch-action:manipulation}
+button:active{transform:scale(.96); transition:transform 80ms ease-out}
+:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+
+/* Portionen-Stepper */
+.stepper{display:flex; align-items:center; background:var(--fill); border-radius:12px}
+.stepper button{width:2.9rem; height:2.75rem; font-size:1.5rem; line-height:1; color:var(--accent); font-weight:500}
+.stepper button:disabled{color:var(--muted); opacity:.5}
+.stepper input{
+  width:3rem; height:2.75rem; border:0; background:none; color:var(--text); text-align:center;
+  font-family:inherit; font-size:1.125rem; font-weight:600; font-variant-numeric:tabular-nums; -moz-appearance:textfield; appearance:textfield;
+}
+.stepper input::-webkit-inner-spin-button,.stepper input::-webkit-outer-spin-button{-webkit-appearance:none; margin:0}
+
+/* Schalter */
+.switch{appearance:none; -webkit-appearance:none; margin:0; flex:none; width:51px; height:31px; border-radius:31px; background:var(--fill); position:relative; cursor:pointer; transition:background 200ms ease}
+.switch::after{content:""; position:absolute; top:2px; left:2px; width:27px; height:27px; border-radius:50%; background:#fff; box-shadow:0 3px 8px rgba(0,0,0,.15),0 1px 1px rgba(0,0,0,.16); transition:transform 250ms cubic-bezier(.3,1.2,.5,1)}
+.switch:checked{background:#34c759}
+.switch:checked::after{transform:translateX(20px)}
+
+/* Häkchen */
+.check{appearance:none; -webkit-appearance:none; margin:0; flex:none; width:1.6rem; height:1.6rem; border-radius:50%; border:2px solid var(--sep); display:grid; place-content:center; cursor:pointer; transition:background 150ms ease,border-color 150ms ease}
+.check::after{content:""; width:.45rem; height:.8rem; border:solid var(--on-accent); border-width:0 2.5px 2.5px 0; transform:translateY(-2px) rotate(45deg) scale(0); transition:transform 150ms ease-out}
+.check:checked{background:var(--accent); border-color:var(--accent)}
+.check:checked::after{transform:translateY(-2px) rotate(45deg) scale(1)}
+label.row{cursor:pointer; touch-action:manipulation}
+label.row:has(.check:checked) .txt{color:var(--muted); text-decoration:line-through; text-decoration-color:var(--sep)}
+.amt{font-weight:600; font-variant-numeric:tabular-nums}
+
+/* Schritte */
+ol{list-style:none; margin:0; padding:0; counter-reset:step}
+.step{counter-increment:step; background:var(--card); border-radius:14px; margin-bottom:.75rem; padding:1rem; transition:opacity 200ms ease}
+.step-head{display:flex; align-items:center; gap:.75rem; cursor:pointer; min-height:2.75rem; touch-action:manipulation}
+.step-head::before{content:counter(step); flex:none; width:2rem; height:2rem; border-radius:50%; background:var(--accent-soft); color:var(--accent); display:grid; place-content:center; font-weight:700; font-size:.9375rem; font-variant-numeric:tabular-nums}
+.step-head .title{flex:1; font-weight:600; font-size:1.125rem; line-height:1.3; letter-spacing:-.005em}
+.step p{margin:.6rem 0 0}
+.step .amt{color:var(--accent)}
+.step:has(.step-head .check:checked){opacity:.5}
+
+.timer{display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; margin-top:.9rem; padding-top:.9rem; border-top:.5px solid var(--sep)}
+.timer time{flex:1 1 100%; font-size:1.75rem; font-weight:600; letter-spacing:-.01em; font-variant-numeric:tabular-nums}
+.timer button{flex:1; min-height:2.75rem; padding:0 1.1rem; border-radius:12px; background:var(--fill); font-weight:600}
+.timer .go{background:var(--accent); color:var(--on-accent)}
+.running .timer time{color:var(--accent)}
+.alarm{box-shadow:0 0 0 3px var(--accent); background:var(--accent-soft); animation:pulse 1s ease-in-out infinite alternate}
+.alarm .timer time{color:var(--accent)}
+.alarm .timer time::after{content:" · Fertig!"; font-size:1rem}
+@keyframes pulse{to{box-shadow:0 0 0 7px var(--accent)}}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important}
+  .alarm{animation:none}
+  button:active{transform:none}
+}
+
+.notes p{margin:0; padding:.75rem 1rem; color:var(--text)}
+.notes p + p{border-top:.5px solid var(--sep)}
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title"></h1>
+  <p class="lead" id="desc"></p>
+
+  <div class="card">
+    <div class="row">
+      <span class="grow" id="lbl-portions">Portionen</span>
+      <div class="stepper" role="group" aria-labelledby="lbl-portions">
+        <button id="minus" aria-label="Eine Portion weniger">−</button>
+        <input id="servings" type="number" inputmode="numeric" min="1" step="1" aria-labelledby="lbl-portions">
+        <button id="plus" aria-label="Eine Portion mehr">+</button>
+      </div>
+    </div>
+    <label class="row"><span class="grow">Salsa zubereiten</span><input id="salsa" class="switch" type="checkbox" role="switch" checked></label>
+  </div>
+
+  <h2>Zutaten</h2>
+  <div id="ingredients"></div>
+
+  <h2>Zubereitung</h2>
+  <ol id="steps"></ol>
+
+  <h2>Notizen</h2>
+  <div class="card notes" id="notes"></div>
+</main>
+
+<script>
+const R = {
+  "title": "Rinder-Birria mit Consommé und Tacos",
+  "description": "Geschmortes Rindfleisch in Guajillo-Adobo, optionale Salsa, drei Taco-Varianten",
+  "baseServings": 6,
+  "ingredients": [
+    {"id":"0001","group":"Fleisch","amount":680,"unit":"g","name":"Rinderbrust (Brisket), mit Fett"},
+    {"id":"0002","group":"Fleisch","amount":900,"unit":"g","name":"Rinderoberschale (Top Round)"},
+    {"id":"0003","group":"Fleisch","amount":680,"unit":"g","name":"Rinderbeinscheiben mit Knochen"},
+    {"id":"0004","group":"Fleisch","amount":1,"unit":"TL","name":"Salz zum Würzen des Fleisches (Schätzung)"},
+    {"id":"0005","group":"Fleisch","amount":1,"unit":"TL","name":"schwarzer Pfeffer zum Würzen des Fleisches (Schätzung)"},
+    {"id":"0006","group":"Fleisch","amount":2,"unit":"EL","name":"neutrales Öl zum Anbraten"},
+    {"id":"0007","group":"Adobo","amount":9,"unit":"","name":"getrocknete Guajillo-Chilis (Adobo)"},
+    {"id":"0008","group":"Adobo","amount":0.5,"unit":"","name":"weiße Zwiebel (Adobo)"},
+    {"id":"0009","group":"Adobo","amount":8,"unit":"","name":"Knoblauchzehen (Adobo)"},
+    {"id":"0010","group":"Adobo","amount":2,"unit":"","name":"Chipotle-Chilis in Adobo plus etwas Soße aus der Dose"},
+    {"id":"0011","group":"Adobo","amount":4,"unit":"EL","name":"Tomatenmark"},
+    {"id":"0012","group":"Adobo","amount":1,"unit":"EL","name":"Apfelessig (Adobo)"},
+    {"id":"0013","group":"Gewürzmischung","amount":1,"unit":"EL","name":"Hühnerbrühepulver"},
+    {"id":"0014","group":"Gewürzmischung","amount":1,"unit":"EL","name":"Rinderbrühepulver"},
+    {"id":"0015","group":"Gewürzmischung","amount":1,"unit":"EL","name":"hellbrauner Zucker"},
+    {"id":"0016","group":"Gewürzmischung","amount":2,"unit":"TL","name":"geräuchertes Paprikapulver"},
+    {"id":"0017","group":"Gewürzmischung","amount":2,"unit":"TL","name":"Oregano"},
+    {"id":"0018","group":"Gewürzmischung","amount":0.5,"unit":"TL","name":"getrockneter Thymian"},
+    {"id":"0019","group":"Gewürzmischung","amount":0.25,"unit":"TL","name":"gemahlener Zimt"},
+    {"id":"0020","group":"Gewürzmischung","amount":0.25,"unit":"TL","name":"gemahlene Nelken"},
+    {"id":"0021","group":"Gewürzmischung","amount":0.5,"unit":"TL","name":"gemahlener Kreuzkümmel"},
+    {"id":"0022","group":"Gewürzmischung","amount":0.5,"unit":"TL","name":"schwarzer Pfeffer (Gewürzmischung)"},
+    {"id":"0023","group":"Gewürzmischung","amount":0.5,"unit":"TL","name":"weißer Pfeffer"},
+    {"id":"0024","group":"Gewürzmischung","amount":1,"unit":"EL","name":"Salz (Gewürzmischung)"},
+    {"id":"0025","group":"Schmoren","amount":4,"unit":"","name":"Lorbeerblätter"},
+    {"id":"0026","group":"Schmoren","amount":120,"unit":"ml","name":"neutrales Öl oder Rinder-/Schweinefett (Schmoren)"},
+    {"id":"0027","group":"Salsa (optional)","amount":8,"unit":"","name":"getrocknete Guajillo-Chilis (Salsa)"},
+    {"id":"0028","group":"Salsa (optional)","amount":4,"unit":"","name":"getrocknete Chile de Árbol (Menge geschätzt)"},
+    {"id":"0029","group":"Salsa (optional)","amount":4,"unit":"","name":"Roma-Tomaten (Salsa)"},
+    {"id":"0030","group":"Salsa (optional)","amount":450,"unit":"g","name":"Tomatillos aus Glas/Dose, abgetropft (Ersatz für 4 frische)"},
+    {"id":"0031","group":"Salsa (optional)","amount":2,"unit":"","name":"Knoblauchzehen (Salsa)"},
+    {"id":"0032","group":"Salsa (optional)","amount":1,"unit":"","name":"Chipotle-Chili in Adobo (Salsa)"},
+    {"id":"0033","group":"Salsa (optional)","amount":1,"unit":"EL","name":"Apfelessig (Salsa)"},
+    {"id":"0034","group":"Salsa (optional)","amount":1,"unit":"EL","name":"Salz (Salsa)"},
+    {"id":"0035","group":"Servieren","amount":48,"unit":"","name":"Mais-Tortillas (Schätzung: 2 pro Taco)"},
+    {"id":"0036","group":"Servieren","amount":300,"unit":"g","name":"Oaxaca-Käse oder Mozzarella, gerieben (optional, Schätzung)"},
+    {"id":"0037","group":"Servieren","amount":1,"unit":"","name":"weiße Zwiebel, fein gehackt (Topping)"},
+    {"id":"0038","group":"Servieren","amount":1,"unit":"","name":"Bund Koriander, gehackt (Topping)"},
+    {"id":"0039","group":"Servieren","amount":3,"unit":"","name":"Limetten zum Servieren"}
+  ],
+  "steps": [
+    {"id":"s1","title":"Gewürze und Chilis vorbereiten","text":"Für die Gewürzmischung {0013}, {0014}, {0015}, {0016}, {0017}, {0018}, {0019}, {0020}, {0021}, {0022}, {0023} und {0024} in einer Schüssel vermengen. Die {0007} entstielen und entkernen. Laut Video kann man die Gewürzmischung auch 2–3 Tage im Voraus anrühren."},
+    {"id":"s2","title":"Fleisch vorbereiten","text":"Die {0002} in drei Stücke schneiden. Bei der {0001} das Fett nicht abschneiden: Es schmilzt beim Schmoren aus und wird später zum Braten der Tortillas verwendet. Die {0003} bleiben unverändert, denn der Knochen gibt der Consommé mehr Geschmack. Das Fleisch rundum mit {0004} und {0005} würzen."},
+    {"id":"s3","title":"Fleisch anbraten","timer":180,"text":"{0006} in einem großen Schmortopf bei mittelhoher Hitze erhitzen. Brust und Oberschale portionsweise anbraten, etwa 2–3 Minuten pro Seite, bis sie rundum gebräunt sind. Danach die Beinscheiben auf beiden Seiten je 2–3 Minuten anbraten. Das Fleisch herausnehmen und beiseitestellen."},
+    {"id":"s4","title":"Guajillos einweichen","text":"Parallel dazu einen Topf Wasser aufkochen. Die entkernten Guajillos hineingeben und den Herd ausschalten, sobald das Wasser wieder kocht. Die Chilis im heißen Wasser weich werden lassen; die Dauer wird im Video nicht genannt. Das Einweichwasser aufbewahren."},
+    {"id":"s5","title":"Adobo mixen","text":"Die eingeweichten Chilis mit einem Schuss Einweichwasser in den Mixer geben. {0008}, {0009}, {0010}, {0011} und {0012} hinzufügen. Etwas mehr heißes Einweichwasser dazugeben, damit sich alles gut mixen lässt. So lange pürieren, bis keine Chilistücke und Kerne mehr zu sehen sind."},
+    {"id":"s6","title":"Aufkochen und abschäumen","text":"Das angebratene Fleisch zurück in den Topf geben und mit so viel Wasser aufgießen, dass es gerade bedeckt ist. Leicht aufkochen lassen und den aufsteigenden Schaum abschöpfen. Ohne Schaumkelle geht das mit einem großen, möglichst flachen Löffel, den du knapp unter der Oberfläche entlangziehst."},
+    {"id":"s7","title":"Würzen und schmoren","timer":12600,"text":"Adobo, Gewürzmischung, {0025} und {0026} in den Topf geben. Aufkochen lassen, dann die Hitze reduzieren und das Ganze halb abgedeckt etwa 3,5 Stunden köcheln lassen. Ab etwa 2,5 Stunden probieren, ob das Fleisch zart ist. Ist es nach 3,5 Stunden noch fest, weitere 20 Minuten schmoren und erneut prüfen."},
+    {"id":"s8","title":"Salsa-Chilis rösten","optional":true,"text":"Während das Fleisch schmort: {0027} und {0028} in eine große, trockene Edelstahlpfanne geben und bei mittlerer bis niedriger Hitze ein paar Minuten rösten. Dabei nicht von der Pfanne weggehen, denn die Chilis verbrennen sehr schnell. Fertig sind sie, wenn sie nussig duften und leichte Röstspuren zeigen. Sofort aus der Pfanne nehmen. Verbrannte Chilis machen die Salsa bitter, in dem Fall mit neuen Chilis von vorne anfangen."},
+    {"id":"s9","title":"Tomaten rösten","optional":true,"timer":180,"text":"Die {0029} ohne Öl in die Pfanne geben und bei mittelhoher Hitze 2–3 Minuten rösten, dann wenden und weitere 2–3 Minuten rösten. Ohne Öl behält die Salsa eine natürlichere rote Farbe. Eingelegte Tomatillos nicht rösten, weil sie zerfallen; sie werden nur abgetropft. Wenn du statt Tomatillos 4 zusätzliche Roma-Tomaten verwendest, diese hier mitrösten."},
+    {"id":"s10","title":"Salsa mixen und ruhen lassen","optional":true,"text":"Tomaten, {0030}, die gerösteten Chilis, {0031}, {0032} und {0033} in den Mixer geben. Einen kleinen Schuss Wasser hinzufügen, nicht mehr, und alles auf hoher Stufe glatt mixen. {0034} bei eingelegten Tomatillos erst nach dem Probieren und nach und nach zugeben. Die Salsa ruhen lassen: Frisch gemixt ist sie sehr scharf, mit der Zeit wird die Schärfe milder. Bei der Variante mit Tomaten und Limette den Limettensaft erst nach dem Ruhen nach Geschmack zugeben."},
+    {"id":"s11","title":"Fett abschöpfen","text":"Wenn das Fleisch fertig ist, schwimmt oben eine dicke rote Fettschicht. Diese fast vollständig abschöpfen und in einem separaten Gefäß aufbewahren, weil sie für die Tortillas gebraucht wird. So wird die Consommé beim Servieren nicht zu fettig. Ein kleiner Rest Fett in der Brühe ist kein Problem."},
+    {"id":"s12","title":"Fleisch zerkleinern","text":"Das Fleisch aus dem Topf nehmen und den Knochen der Beinscheiben entsorgen. Das Fett von der Brust abtrennen und das Fleisch klein hacken. Wirkt das Fleisch trocken, einen Teil des Brustfetts wieder untermischen, sonst weglassen. Das Fleisch in ein Gefäß geben und mit etwas Consommé befeuchten, damit es saftig bleibt. Die Lorbeerblätter aus der Consommé entfernen."},
+    {"id":"s13","title":"Tortillas braten","text":"Eine Grillplatte oder gusseiserne Pfanne bei mittlerer Hitze erhitzen, bis sie leicht raucht. Eine Tortilla ins abgeschöpfte Fett tupfen und damit wie mit einem Pinsel eine zweite Tortilla bestreichen. Ziel ist eine dünne, gleichmäßige Fettschicht; zu viel Fett einfach mit der Tortilla verteilen. Die Tortillas in die Pfanne legen und wenden, sobald sie leicht aufblähen."},
+    {"id":"s14","title":"Tacos zusammenbauen und servieren","text":"Taco: Zwei Tortillas nur leicht anrösten, auf den Teller legen, großzügig mit Fleisch füllen und mit {0037}, {0038} und Salsa toppen. Quesabirria: Auf die angerösteten Tortillas {0036} geben und schmelzen lassen, dann Fleisch und etwas Salsa daraufgeben und zusammenklappen. Mulita: Tortillas braten, bis sie richtig knusprig, aber nicht verbrannt sind. Käse darauf schmelzen, Fleisch und Salsa daraufgeben, mit einer zweiten Käse-Tortilla abdecken und halbieren. Alles mit {0039} und einem Schälchen Consommé servieren, gern mit etwas Fleisch darin. Übrige Consommé kann man wie Suppe löffeln."}
+  ],
+  "notes": [
+    "Portionen: Im Transkript wird keine Portionszahl genannt. 6 Portionen mit etwa 4 Tacos pro Person (je 50–60 g Fleisch) sind eine Schätzung. Bei großzügiger Füllung reicht es eher für 3 Tacos pro Person. Ebenfalls geschätzt sind Salz und Pfeffer fürs Fleisch, Chile de Árbol, Tortillas, Käse und Toppings.",
+    "Schmorzeit: Das Video nennt einmal 2,5–3 Stunden und einmal 3,5 Stunden. Ab etwa 2,5 Stunden probieren.",
+    "Zeitplan: Insgesamt etwa 5 Stunden. Die Salsa während der Schmorzeit zubereiten, damit sie ruhen kann.",
+    "Salz: Die Gewürzmischung enthält Salz und zwei Brühepulver. Deshalb die Consommé probieren, bevor du nachsalzt.",
+    "Tomatillo-Ersatz: Statt eingelegter Tomatillos 4 zusätzliche Roma-Tomaten mitrösten und nach dem Ruhen den Saft von etwa 1 Limette nach Geschmack zugeben.",
+    "Ob die Guajillos für die Salsa entkernt werden, sagt das Video nicht."
+  ]
+};
+
+const $ = id => document.getElementById(id);
+const h = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const byId = Object.fromEntries(R.ingredients.map(i => [i.id, i]));
+const SALSA = 'Salsa (optional)';
+let servings = R.baseServings;
+
+// --- Mengen ---
+const FRAC = { 0: '', 0.25: '¼', 0.5: '½', 0.75: '¾' };
+function qty(amount, unit, n = servings) {
+  const step = unit === 'g' || unit === 'ml' ? 5 : unit ? 0.25 : 0.5;
+  const v = Math.round(amount * n / R.baseServings / step) * step || step;
+  if (step === 5) return String(v);
+  const whole = Math.floor(v), f = FRAC[v - whole];
+  return whole ? (f ? whole + ' ' + f : String(whole)) : f;
+}
+const amount = i => qty(i.amount, i.unit) + (i.unit ? ' ' + i.unit : '');
+
+console.assert(qty(4, 'EL', 12) === '8' && qty(0.25, 'TL', 12) === '½' && qty(0.5, '', 12) === '1', 'Skalierung 6→12');
+console.assert(qty(0.25, 'TL', 1) === '¼' && qty(0.5, '', 1) === '½' && qty(120, 'ml', 1) === '20', 'Skalierung 6→1');
+
+// --- Zutaten ---
+const amtEls = [];
+const groups = new Map();
+for (const i of R.ingredients) (groups.get(i.group) || groups.set(i.group, []).get(i.group)).push(i);
+for (const [name, items] of groups) {
+  const sec = h('section');
+  sec.dataset.group = name;
+  sec.append(h('h3', null, name));
+  const card = h('div', 'card');
+  for (const i of items) {
+    const row = h('label', 'row');
+    const cb = h('input', 'check'); cb.type = 'checkbox';
+    const txt = h('span', 'txt grow');
+    const a = h('span', 'amt');
+    amtEls.push([a, i]);
+    txt.append(a, ' ' + i.name);
+    row.append(cb, txt);
+    card.append(row);
+  }
+  sec.append(card);
+  $('ingredients').append(sec);
+}
+
+// --- Schritte ---
+const stepTexts = [];
+const timers = [];
+for (const s of R.steps) {
+  const li = h('li', 'step');
+  if (s.optional) li.dataset.optional = '';
+  const head = h('label', 'step-head');
+  const cb = h('input', 'check'); cb.type = 'checkbox';
+  head.append(h('span', 'title', s.title), cb);
+  const p = h('p');
+  stepTexts.push([p, s]);
+  li.append(head, p);
+  if (s.timer) li.append(makeTimer(s.timer, li));
+  $('steps').append(li);
+}
+
+// --- Notizen ---
+for (const n of R.notes) $('notes').append(h('p', null, n));
+
+// --- Timer ---
+function fmt(ms) {
+  const t = Math.ceil(ms / 1000), hh = Math.floor(t / 3600), m = Math.floor(t / 60) % 60, s = t % 60;
+  const p = x => String(x).padStart(2, '0');
+  return hh ? `${hh}:${p(m)}:${p(s)}` : `${p(m)}:${p(s)}`;
+}
+function makeTimer(sec, li) {
+  // end = Zeitpunkt (Date.now()-Basis), solange der Timer läuft; left = Restzeit im Pausenzustand
+  const t = { li, dur: sec * 1000, left: sec * 1000, end: 0 };
+  const box = h('div', 'timer');
+  t.time = h('time');
+  t.go = h('button', 'go');
+  const reset = h('button', null, 'Zurücksetzen');
+  t.go.onclick = () => {
+    initAudio();
+    if (t.end) { t.left = Math.max(0, t.end - Date.now()); t.end = 0; }
+    else { if (!t.left) t.left = t.dur; li.classList.remove('alarm'); t.end = Date.now() + t.left; }
+    tick();
+  };
+  reset.onclick = () => { t.end = 0; t.left = t.dur; li.classList.remove('alarm'); tick(); };
+  box.append(t.time, t.go, reset);
+  timers.push(t);
+  return box;
+}
+function tick() {
+  const now = Date.now();
+  for (const t of timers) {
+    if (t.end && t.end <= now) { t.end = 0; t.left = 0; ring(t); }
+    const left = t.end ? t.end - now : t.left;
+    t.time.textContent = fmt(left);
+    t.go.textContent = t.end ? 'Pause' : t.left && t.left < t.dur ? 'Weiter' : 'Start';
+    t.li.classList.toggle('running', !!t.end);
+  }
+  wake();
+}
+setInterval(tick, 250);
+document.addEventListener('visibilitychange', tick);
+
+// --- Alarm: Ton, Vibration, Markierung ---
+let ac;
+function initAudio() {
+  try { ac ||= new (window.AudioContext || window.webkitAudioContext)(); ac.resume(); } catch {}
+}
+function ring(t) {
+  t.li.classList.add('alarm');
+  navigator.vibrate?.([400, 200, 400, 200, 400]);
+  if (!ac) return;
+  const t0 = ac.currentTime;
+  for (let k = 0; k < 6; k++) {
+    const o = ac.createOscillator(), g = ac.createGain(), at = t0 + k * 0.45;
+    o.frequency.value = k % 2 ? 1046 : 880;
+    g.gain.setValueAtTime(0.0001, at);
+    g.gain.exponentialRampToValueAtTime(0.4, at + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, at + 0.3);
+    o.connect(g).connect(ac.destination);
+    o.start(at); o.stop(at + 0.32);
+  }
+}
+
+// --- Wake Lock, solange ein Timer läuft ---
+let lock = null;
+function wake() {
+  if (!('wakeLock' in navigator)) return;
+  const running = timers.some(t => t.end);
+  if (running && !lock && document.visibilityState === 'visible') {
+    lock = 'pending';
+    navigator.wakeLock.request('screen')
+      .then(l => { lock = l; l.onrelease = () => { if (lock === l) lock = null; }; })
+      .catch(() => { lock = null; });
+  } else if (!running && lock && lock !== 'pending') {
+    const l = lock; lock = null; l.release().catch(() => {});
+  }
+}
+
+// --- Portionen & Salsa ---
+function render() {
+  $('servings').value = servings;
+  $('minus').disabled = servings <= 1;
+  for (const [el, i] of amtEls) el.textContent = amount(i);
+  for (const [p, s] of stepTexts)
+    p.innerHTML = s.text.replace(/\{(\d{4})\}/g, (_, id) => `<span class="amt">${amount(byId[id])}</span> ${byId[id].name}`);
+}
+const setServings = n => { servings = Math.max(1, Math.round(n) || 1); render(); };
+$('minus').onclick = () => setServings(servings - 1);
+$('plus').onclick = () => setServings(servings + 1);
+$('servings').oninput = e => { const n = +e.target.value; if (n >= 1) { servings = Math.round(n); render(); } };
+$('servings').onchange = e => setServings(+e.target.value);
+$('salsa').onchange = e => {
+  const on = e.target.checked;
+  document.querySelector(`[data-group="${SALSA}"]`).hidden = !on;
+  for (const li of document.querySelectorAll('.step[data-optional]')) li.hidden = !on;
+};
+
+$('title').textContent = document.title = R.title;
+$('desc').textContent = R.description;
+render();
+tick();
+</script>
+</body>
+</html>
